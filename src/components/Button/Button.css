@@ -1,0 +1,12 @@
+.btn {
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  padding: 5px 5px;
+}
+
+.btn-primary {
+  background-color: rebeccapurple
+}
+
+.btn-secondary {
+  background-color: brown
+}
