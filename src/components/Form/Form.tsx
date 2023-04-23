@@ -1,18 +1,22 @@
 import { FormEvent, useRef, useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 
-interface FormData {
-	name: string
-	age: number
-}
+const schema = z.object({
+	name: z.string().min(3, { message: 'Name must be at least 3 characters' }),
+	age: z.number({ invalid_type_error: 'Age field is required.' }).min(18, { message: 'Age must be at least 18' }),
+})
+
+type FormData = z.infer<typeof schema>
 
 const Form = () => {
 	// React from hook
 	const {
 		register,
 		handleSubmit,
-		formState: { errors },
-	} = useForm<FormData>()
+		formState: { errors, isValid },
+	} = useForm<FormData>({ resolver: zodResolver(schema) })
 	const onSubmit = (data: FieldValues) => console.log(data)
 
 	// Ref Hook
@@ -46,7 +50,7 @@ const Form = () => {
 					Name
 				</label>
 				<input
-					{...register('name', { required: true, minLength: 3 })}
+					{...register('name')}
 					// state hook
 					//value={person.name}
 					//onChange={(event) => setPerson({ ...person, name: event.target.value })}
@@ -57,15 +61,14 @@ const Form = () => {
 					type='text'
 					className='form-control'
 				/>
+			{errors.name && <p className='text-danger'>{errors.name?.message}</p>}
 			</div>
-			{errors.name?.type === 'required' && <p className='text-danger'>Name field is required.</p>}
-			{errors.name?.type === 'minLength' && <p className='text-danger'>Name must be at least 3 characters long.</p>}
 			<div className='mb-3'>
 				<label htmlFor='age' className='form-label'>
 					Age
 				</label>
 				<input
-					{...register('age')}
+					{...register('age', { valueAsNumber: true})}
 					// state hook
 					//value={person.age}
 					//onChange={(event) => setPerson({ ...person, age: event.target.value })}
@@ -75,8 +78,9 @@ const Form = () => {
 					type='number'
 					className='form-control'
 				/>
+        {errors.age && <p className='text-danger'>{errors.age?.message}</p>}
 			</div>
-			<button type='submit' className='btn btn-primary'>
+			<button disabled={!isValid} type='submit' className='btn btn-primary'>
 				Submit
 			</button>
 		</form>
